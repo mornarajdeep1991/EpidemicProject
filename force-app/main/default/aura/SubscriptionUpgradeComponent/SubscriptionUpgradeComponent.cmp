@@ -1,0 +1,140 @@
+<aura:component controller="ContractSubscriptionUpgrade" implements="force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+    <aura:html tag="style">
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }       
+        .slds-modal__content{
+        overflow-y:hidden !important;
+        height:unset !important;
+        max-height:unset !important;
+        }
+    </aura:html>
+    <aura:attribute name="isModalOpen" type="boolean" default="false"/> 
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="loadSpinner" type="Boolean" default="false"/>
+    <aura:attribute name="openproductsModal" type="Boolean" default="false"/>
+    <aura:attribute name="productRecords" type="List"/>
+    <aura:attribute name="selectedProduct" type="String"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    
+        <!-- Modal/Popup Box starts here-->
+       <aura:if isTrue="{!v.isModalOpen}">
+    <div class="modal-header slds-modal__header slds-size_1-of-1">
+        <h4 class="title slds-text-heading--medium">Upgrade Subscription</h4>
+    </div>
+    <!--End Modal Header-->  
+     
+    <!--Modal Body-->   
+    <div class="slds-modal__content slds-p-around--x-small slds-align_absolute-center slds-size_1-of-1 slds-is-relative">
+            <aura:if isTrue="{!not(empty(v.productRecords))}">
+        <div class="slds-scoped-notification slds-media slds-media_center slds-theme_warning" role="status">
+            <div class="slds-media__figure">
+                <lightning:icon iconName="utility:warning" alternativeText="Warning!" title="Warning" />
+                
+            </div>
+            <div class="slds-media__body">
+                <p>We found few upgradable products.
+                    
+                    <a onclick="{!c.handleproductView}">View.</a>
+                </p>
+            </div>
+        </div>
+        <br/>
+         <aura:set attribute="else">
+        <form class="slds-form--stacked">
+            Are you Sure? Upgrading will submit for Approval and you will receive an email.
+        </form>
+             
+    </aura:set>
+    </aura:if> 
+    </div>
+    <!--End of Modal Body--> 
+     
+    <!--Modal Footer-->
+    <div class="modal-footer slds-modal__footer slds-size_1-of-1">
+        <lightning:button variant="Brand" class="slds-button" label="Upgrade" onclick="{!c.approvalSubmission}"/>
+    </div>
+    </aura:if>
+    <aura:if isTrue="{!v.openproductsModal}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{!c.handleCloseModal}"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+                        <h2 class="slds-text-heading_medium slds-hyphenate">Upgrade Products</h2>
+                    </header>
+                    
+                    <div class="slds-modal__content slds-p-around_medium">
+                        
+                        <lightning:tabset selectedTabId="ProductsTab">
+                            <lightning:tab label="ProductsTab" id="ProductsTab" aura:id="ProductTab">
+                                <table class="slds-table slds-table_bordered slds-table_cell-buffer" style="width:100%">
+                                    <thead>
+                                        <tr class="slds-text-title_caps">
+                                            <th>
+                                            </th>
+                                            <th scope="col" style="width:100%">
+                                                <div class="slds-truncate" title="product ID">Id</div>
+                                            </th>
+                                            <th scope="col" style="width:15%">
+                                                <div class="slds-truncate" title="Name">Name</div>
+                                            </th>
+                                            <th scope="col" style="width:15%">
+                                                <div class="slds-truncate" title="Product Code">Product Code</div>
+                                            </th>
+                                            <th scope="col" style="width:20%">
+                                                <div class="slds-truncate" title="Upgradable">Upgradable</div>
+                                            </th>
+                                            <th scope="col" style="width:20%">
+                                                <div class="slds-truncate" title="Active">Active</div>
+                                            </th>
+                                           <!-- <th scope="col" style="width:20%">
+                                                <div class="slds-truncate" title="Created Date">Created Date</div>
+                                            </th>-->
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+  
+                                        <aura:iteration items="{!v.productRecords}" var="products"> 
+                                            <tr >
+                                              <th>  <lightning:input type="radio" name="select" value="{!products.isSelected}" checked="{!products.isSelected}"/>
+                                                      </th>
+                                                <th scope="row" data-label="product Id">
+                                                    <lightning:formattedUrl  value="{!'/'+products.productID}" title="{!products.productName}" tooltip="{!products.productName}" label="{!products.productName}" />
+                                                </th>
+                                                <th scope="row" data-label="Name">
+                                                    <div class="slds-truncate" title="{!products.productName}">{!products.productName}</div>
+                                                </th>
+                                                <th scope="row" data-label="Product Code">
+                                                    <div class="slds-truncate" title="{!productsproductCode}">{!products.productCode}</div>
+                                                </th>
+                                                <th scope="row" data-label="Upgradable">
+                                                    <div class="slds-truncate" title="{!products.Upgradable}">{!products.isUpgradable}</div>
+                                                </th>
+                                                <th scope="row" data-label="Active">
+                                                    <div class="slds-truncate" title="{!products.Active}">{!products.isActive}</div>
+                                                </th>
+                                            </tr>
+                                        </aura:iteration> 
+                                    </tbody>
+                                </table>
+                            </lightning:tab>
+                        </lightning:tabset>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="Brand" label="Next" onclick="{!c.handleNext}"/>
+                        <lightning:button variant="Neutral" label="Cancel" onclick="{!c.handleCloseModal}"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open" width="100%"></div>
+        </aura:if>
+    
+</aura:component>
